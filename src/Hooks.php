@@ -19,19 +19,15 @@
 
 namespace MediaWiki\extensions\SubpageWatchlist;
 
-use MWExtension;
-use SpecialWatchlist;
-use User;
-use LogicException;
 use ChangesListBooleanFilter;
-use MediaWiki\User\UserOptionsLookup;
+use LogicException;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
 use MediaWiki\SpecialPage\Hook\ChangesListSpecialPageStructuredFiltersHook;
-use MediaWiki\SpecialPage\Hook\ChangesListSpecialPageQueryHook;
+use MediaWiki\User\UserOptionsLookup;
+use SpecialWatchlist;
+use User;
 use Wikimedia\Rdbms\IDatabase;
 use Wikimedia\Rdbms\ILoadBalancer;
-use IContextSource;
-
 
 class Hooks implements
 	GetPreferencesHook,
@@ -41,6 +37,10 @@ class Hooks implements
 	private UserOptionsLookup $userOptionsLookup;
 	private IDatabase $dbr;
 
+	/**
+	 * @param UserOptionsLookup $uol
+	 * @param ILoadBalancer $lb
+	 */
 	public function __construct( UserOptionsLookup $uol, ILoadBalancer $lb ) {
 		$this->userOptionsLookup = $uol;
 		$this->dbr = $lb->getconnectionRef( ILoadBalancer::DB_REPLICA );
@@ -50,7 +50,7 @@ class Hooks implements
 	 * Add a new user preference.
 	 *
 	 * @param User $user the user being modified.
-	 * @param Array $preference the preference array
+	 * @param array &$preference the preference array
 	 */
 	public function onGetPreferences( $user, &$preference ) {
 		$preference['watchlisthidesubpages'] = [
@@ -61,7 +61,7 @@ class Hooks implements
 	}
 
 	/**
-	 * @param ChangesListSpecialPage $special
+	 * @inheritDoc
 	 */
 	public function onChangesListSpecialPageStructuredFilters(
 		$special
@@ -80,7 +80,7 @@ class Hooks implements
 				$special->getUser(),
 				'watchlisthidesubpages'
 			),
-			//'queryCallable' => [ $this, 'modifyQuery' ],
+			// 'queryCallable' => [ $this, 'modifyQuery' ],
 			'label' => 'subpagewatchlist-rcfilter-showsubpages-label',
 			'description' => 'subpagewatchlist-rcfilter-showsubpages-description',
 			'showHide' => 'subpagewatchlist-rcshowsubpages'
@@ -88,6 +88,9 @@ class Hooks implements
 		] );
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function onChangesListSpecialPageQuery(
 		string $type,
 		array &$tables,
