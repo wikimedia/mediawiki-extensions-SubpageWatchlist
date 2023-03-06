@@ -17,28 +17,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace SubpageWatchlist;
+namespace MediaWiki\extensions\SubpageWatchlist;
 
 use MWExtension;
 use SpecialWatchlist;
 use User;
+use LogicException;
+use ChangesListBooleanFilter;
+use MediaWiki\User\UserOptionsLookup;
+use MediaWiki\Preferences\Hook\GetPreferencesHook;
+use MediaWiki\SpecialPage\Hook\ChangesListSpecialPageStructuredFiltersHook;
+use MediaWiki\SpecialPage\Hook\ChangesListSpecialPageQueryHook;
+use Wikimedia\Rdbms\IDatabase;
+use Wikimedia\Rdbms\ILoadBalancer;
+use IContextSource;
 
-class Hooks {
-	/**
-	 * Add a new option to the special page.
-	 *
-	 * @param SpecialWatchlist $specialPage
-	 * @param Array $customOpts List of added options
-	 */
-	static public function onSpecialWatchlistFilters(
-		SpecialWatchlist $specialPage, &$customOpts
-	) {
-		$customOpts['hidesubpage'] = [
-			'default' => $specialPage->getUser()->getBoolOption(
-				'watchlisthidesubpage'
-			),
-			'msg' => 'subpagewatchlist-rchidesubpage'
-		];
+
+class Hooks implements
+	GetPreferencesHook,
+	ChangesListSpecialPageStructuredFiltersHook
+{
+
+	private UserOptionsLookup $userOptionsLookup;
+	private IDatabase $dbr;
+
+	public function __construct( UserOptionsLookup $uol, ILoadBalancer $lb ) {
+		$this->userOptionsLookup = $uol;
+		$this->dbr = $lb->getconnectionRef( ILoadBalancer::DB_REPLICA );
 	}
 
 	/**
@@ -47,62 +52,70 @@ class Hooks {
 	 * @param User $user the user being modified.
 	 * @param Array $preference the preference array
 	 */
-	static public function onGetPreferences( User $user, &$preference ) {
-		$preference['watchlisthidesubpage'] = [
+	public function onGetPreferences( $user, &$preference ) {
+		$preference['watchlisthidesubpages'] = [
 			'type' => 'toggle',
-			'section' => 'watchlist/advancedwatchlist',
-			'label-message' => 'tog-watchlisthidesubpage',
+			'section' => 'watchlist/changeswatchlist',
+			'label-message' => 'tog-watchlisthidesubpages',
 		];
 	}
 
 	/**
-	 * Change query if showing subpages is set.
-	 *
-	 * @param Array $conds Where conditions for query
-	 * @param Array $tables Tables to use in query
-	 * @param Array $join_conds Join conditions
-	 * @param Array $fields Fields to select in the query
-	 * @param Array $values Option values for special pages
-	 * @throws MWException If core changes how it makes the query, and this
-	 *				doesn't work.
+	 * @param ChangesListSpecialPage $special
 	 */
-	static public function onSpecialWatchlistQuery(
-		&$conds, &$tables, &$join_conds, &$fields, $values
+	public function onChangesListSpecialPageStructuredFilters(
+		$special
 	) {
-		if ( !$values['hidesubpage'] ) {
-			// This is a tad fragile
-			if ( isset( $join_conds['watchlist'] )
-				&& $join_conds['watchlist'][1][1] === 'wl_title=rc_title'
-			) {
-				$dbr = wfGetDB( DB_SLAVE, "watchlist" );
-				$join_conds['watchlist'][1][1] = $dbr->makeList(
-					[
-						'wl_title = rc_title',
-						$dbr->buildConcat(
-						[ 'wl_title', $dbr->addQuotes( '/' ) ] ) . '=' .
-						'SUBSTR( rc_title, 1, CHAR_LENGTH( wl_title ) + 1 )',
-					],
-					LIST_OR
-				);
-				// BUG: This can introduce duplicates to the
-				// list. Ways of fixing this
+		if ( !$special instanceof SpecialWatchlist ) {
+			return;
+		}
 
-				// * Change it to a SELECT DISTINCT. Describe suggests
-				// worse efficiency issues
+		$group = $special->getFilterGroup( 'changeType' );
 
-				// * Add group by. In my limitted testing, group by
-				// rc_timestamp doesn't seem to change the DESCRIBE,
-				// however that will cause some non-duplicates to
-				// remove
+		$filterGroup = new ChangesListBooleanFilter( [
+			'name' => 'hidesubpages',
+			'group' => $group,
+			'priority' => 0,
+			'default' => $this->userOptionsLookup->getBoolOption(
+				$special->getUser(),
+				'watchlisthidesubpages'
+			),
+			//'queryCallable' => [ $this, 'modifyQuery' ],
+			'label' => 'subpagewatchlist-rcfilter-showsubpages-label',
+			'description' => 'subpagewatchlist-rcfilter-showsubpages-description',
+			'showHide' => 'subpagewatchlist-rcshowsubpages'
+			// TODO: highlighting
+		] );
+	}
 
-				// * Remove duplicates on PHP side after query. Kind
-				// of icky, as won't return the expected number of
-				// results anymore.  On top of all that, no hooks in
-				// the right place to do any of those
-			} else {
-				throw new MWException( __METHOD__ .
-									   " Could not modify Watchlist query." );
-			}
+	public function onChangesListSpecialPageQuery(
+		string $type,
+		array &$tables,
+		array &$fields,
+		array &$conds,
+		array &$query_options,
+		array &$join_conds,
+		$opts
+	) {
+		if ( $type !== 'Watchlist' || $opts['hidesubpages'] ) {
+			return;
+		}
+
+		if ( isset( $join_conds['watchlist'] )
+			&& $join_conds['watchlist'][1][1] === 'wl_title=rc_title'
+		) {
+			// FIXME: Avoid showing duplicates
+			$join_conds['watchlist'][1][1] = $this->dbr->makeList(
+				[
+					'wl_title = rc_title',
+					$this->dbr->buildConcat(
+					[ 'wl_title', $this->dbr->addQuotes( '/' ) ] ) . '=' .
+					'SUBSTR( rc_title, 1, CHAR_LENGTH( wl_title ) + 1 )',
+				],
+				LIST_OR
+			);
+		} else {
+			throw new LogicException( "Could not understand watchlist query" );
 		}
 	}
 }

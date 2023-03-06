@@ -3,6 +3,8 @@
 		"authors": []
 	},
 	"subpagewatchlist-desc": "Adds option to include subpages of watched pages in Special:Watchlist.",
-	"tog-watchlisthidesubpage": "Hide subpages from the watchlist",
-	"subpagewatchlist-rchidesubpage": "$1 subpages"
+	"tog-watchlisthidesubpages": "Hide subpages of watched pages from the watchlist",
+	"subpagewatchlist-rcshowsubpages": "$1 subpages",
+	"subpagewatchlist-rcfilter-showsubpages-label": "Subpages",
+	"subpagewatchlist-rcfilter-showsubpages-description": "Edits to subpages of watched pages"
 }

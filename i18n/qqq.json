@@ -3,6 +3,8 @@
 		"authors": []
 	},
 	"subpagewatchlist-desc": "Description for Special:Version",
-	"tog-watchlisthidesubpage": "[[Special:Preferences]], tab 'Watchlist'. Offers user to add deleted pages to watchlist. {{Gender}}",
-	"subpagewatchlist-rchidesubpage": "Message to trigger option in Special:Watchlist"
+	"tog-watchlisthidesubpages": "[[Special:Preferences]], tab 'Watchlist'. Offers user to add deleted pages to watchlist.",
+	"subpagewatchlist-rcshowsubpages": "Message to trigger option in Special:Watchlist when not using the javascript (structured) interface",
+	"subpagewatchlist-rcfilter-showsubpages-label": "Label for filter on Special:Watchlist when using structured (javascript) interface",
+	"subpagewatchlist-rcfilter-showsubpages-description": "Description of filter on Special:Watchlist. Shown under {{msg-mw|subpagewatchlist-rcfilter-showsubpages-label}}."
 }

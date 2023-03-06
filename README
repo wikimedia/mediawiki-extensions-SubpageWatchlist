@@ -1,0 +1,7 @@
+Extension to see subpages of watched pages on Special:Watchlist
+
+See https://www.mediawiki.org/wiki/Extension:SubpageWatchlist for more info.
+
+The performance of this extension is very sensitive to the size of
+the recentchanges table. Setting $wgRCMaxAge to a smaller value can
+keep that table small and improve the performance of this extension.
