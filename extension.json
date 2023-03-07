@@ -6,7 +6,7 @@
 		"[https://mediawiki.org/wiki/User:Bawolff Brian Wolff]",
 		"[http://mwstake.org Mark A. Hershberger]"
 	],
-	"require": {
+	"requires": {
 		"MediaWiki": ">= 1.35"
 	},
 	"url": "https://www.mediawiki.org/wiki/Extension:SubpageWatchlist",
