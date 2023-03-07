@@ -100,6 +100,7 @@ class Hooks implements
 		array &$join_conds,
 		$opts
 	) {
+		global $wgSQLMode;
 		if ( $type !== 'Watchlist' || $opts['hidesubpages'] ) {
 			return;
 		}
@@ -117,6 +118,22 @@ class Hooks implements
 				],
 				LIST_OR
 			);
+			// Try and make some SARGable parameters here.
+			// Hopefully this triggers "Range checked for each record", but I'm not sure if it does.
+			// Hopefully it at least down't make things worse.
+			// Hopefully no weird collations are active where 0 doesn't sort immediately after /
+			$join_conds['watchlist'][1][] = 'rc_title >= wl_title';
+			$join_conds['watchlist'][1][] = 'rc_title < ' .
+				$this->dbr->buildConcat( [ 'wl_title', $this->dbr->addQuotes( '0' ) ] );
+			// SpecialWatchlist::doMainQuery looks for this, and modifies the group by for performance.
+			$query_options[] = 'DISTINCT';
+
+			// FIXME FIXME FIXME - this is hacky
+			// Core makes a partial group by. If $wgSQLMode is set to strict this fails
+			// which it is in unit tests. The following does not work with complex LBs.
+			if ( strpos( $wgSQLMode, 'ONLY_FULL_GROUP_BY' ) && $this->dbr->getType() === 'mysql' ) {
+				$this->dbr->query( 'SET sql_mode=""' );
+			}
 		} else {
 			throw new LogicException( "Could not understand watchlist query" );
 		}
