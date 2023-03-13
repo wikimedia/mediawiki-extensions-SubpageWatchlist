@@ -20,7 +20,9 @@
 namespace MediaWiki\extensions\SubpageWatchlist;
 
 use ChangesListBooleanFilter;
+use Config;
 use LogicException;
+use MediaWiki\MainConfigNames;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
 use MediaWiki\SpecialPage\Hook\ChangesListSpecialPageStructuredFiltersHook;
 use MediaWiki\User\UserOptionsLookup;
@@ -36,14 +38,17 @@ class Hooks implements
 
 	private UserOptionsLookup $userOptionsLookup;
 	private IDatabase $dbr;
+	private Config $config;
 
 	/**
 	 * @param UserOptionsLookup $uol
 	 * @param ILoadBalancer $lb
+	 * @param Config $config
 	 */
-	public function __construct( UserOptionsLookup $uol, ILoadBalancer $lb ) {
+	public function __construct( UserOptionsLookup $uol, ILoadBalancer $lb, Config $config ) {
 		$this->userOptionsLookup = $uol;
 		$this->dbr = $lb->getconnectionRef( ILoadBalancer::DB_REPLICA );
+		$this->config = $config;
 	}
 
 	/**
@@ -58,6 +63,13 @@ class Hooks implements
 			'section' => 'watchlist/changeswatchlist',
 			'label-message' => 'tog-watchlisthidesubpages',
 		];
+		if ( $this->config->get( MainConfigNames::EnotifWatchlist ) ) {
+			$preference['enotifwatchlistsubpages'] = [
+				'type' => 'toggle',
+				'section' => 'personal/email',
+				'label-message' => 'tog-enotifwatchlistsubpages'
+			];
+		}
 	}
 
 	/**

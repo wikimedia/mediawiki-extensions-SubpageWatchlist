@@ -1,13 +1,13 @@
 {
 	"name": "SubpageWatchlist",
-	"version": "2.0.0",
+	"version": "2.1.0",
 	"license-name": "GPL-3.0",
 	"author": [
 		"[https://mediawiki.org/wiki/User:Bawolff Brian Wolff]",
 		"[http://mwstake.org Mark A. Hershberger]"
 	],
 	"requires": {
-		"MediaWiki": ">= 1.35"
+		"MediaWiki": ">= 1.39"
 	},
 	"url": "https://www.mediawiki.org/wiki/Extension:SubpageWatchlist",
 	"descriptionmsg": "subpagewatchlist-desc",
@@ -29,6 +29,12 @@
 		],
 		"GetPreferences": [
 			"main"
+		],
+		"AbortEmailNotification": [
+			"enotif"
+		],
+		"PageViewUpdates": [
+			"enotif"
 		]
 	},
 	"HookHandlers": {
@@ -36,12 +42,26 @@
 			"class": "MediaWiki\\Extensions\\SubpageWatchlist\\Hooks",
 			"services": [
 				"UserOptionsManager",
-				"DBLoadBalancer"
+				"DBLoadBalancer",
+				"MainConfig"
+			]
+		},
+		"enotif": {
+			"class": "MediaWiki\\Extensions\\SubpageWatchlist\\Enotif",
+			"services": [
+				"DBLoadBalancer",
+				"MainConfig",
+				"UserOptionsManager",
+				"ContentLanguage",
+				"MessageCache",
+				"WatchlistManager",
+				"WatchedItemStore"
 			]
 		}
 	},
 	"DefaultUserOptions": {
-		"watchlisthidesubpages": false
+		"watchlisthidesubpages": false,
+		"enotifwatchlistsubpages": true
 	},
 	"manifest_version": 2
 }
