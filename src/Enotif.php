@@ -111,7 +111,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 					[
 						'w1.wl_id = we_item',
 						'we_expiry <= ' . $this->dbr->addQuotes( $this->dbr->timestamp() )
- ]
+					]
 				]
 			]
 		);
@@ -178,7 +178,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 		$ts = wfTimestampNow();
 		foreach ( $timestampsToReset as $page => $users ) {
 			foreach ( $users as $user ) {
-			$target = new TitleValue( $ns, $page );
+				$target = new TitleValue( $ns, $page );
 				$this->watchedItemStore->setNotificationTimestampsForUser(
 					$user,
 					$ts,
