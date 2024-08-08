@@ -22,14 +22,13 @@ use TitleValue;
 use User;
 use UserMailer;
 use WatchedItemStore;
-use Wikimedia\Rdbms\IDatabase;
-use Wikimedia\Rdbms\ILoadBalancer;
+use Wikimedia\Rdbms\IConnectionProvider;
+use Wikimedia\Rdbms\IReadableDatabase;
 
 class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageViewUpdatesHook {
 	use LoggerAwareTrait;
 
-	private IDatabase $dbr;
-	private ILoadBalancer $lb;
+	private IReadableDatabase $dbr;
 	private Config $config;
 	private UserOptionsLookup $userOptionsLookup;
 	private Language $contLang;
@@ -38,7 +37,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 	private WatchedItemStore $watchedItemStore;
 
 	/**
-	 * @param ILoadBalancer $lb
+	 * @param IConnectionProvider $dbProvider
 	 * @param Config $config
 	 * @param UserOptionsLookup $userOptionsLookup
 	 * @param Language $contLang
@@ -47,7 +46,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 	 * @param WatchedItemStore $watchedItemStore
 	 */
 	public function __construct(
-		ILoadBalancer $lb,
+		IConnectionProvider $dbProvider,
 		Config $config,
 		UserOptionsLookup $userOptionsLookup,
 		Language $contLang,
@@ -55,7 +54,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 		WatchlistManager $watchlistManager,
 		WatchedItemStore $watchedItemStore
 	) {
-		$this->dbr = $lb->getConnection( ILoadBalancer::DB_REPLICA );
+		$this->dbr = $dbProvider->getReplicaDatabase();
 		$this->config = $config;
 		$this->userOptionsLookup = $userOptionsLookup;
 		$this->contLang = $contLang;

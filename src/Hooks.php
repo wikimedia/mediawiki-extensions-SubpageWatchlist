@@ -28,8 +28,9 @@ use MediaWiki\SpecialPage\Hook\ChangesListSpecialPageStructuredFiltersHook;
 use MediaWiki\User\UserOptionsLookup;
 use SpecialWatchlist;
 use User;
+use Wikimedia\Rdbms\IConnectionProvider;
 use Wikimedia\Rdbms\IDatabase;
-use Wikimedia\Rdbms\ILoadBalancer;
+use Wikimedia\Rdbms\IReadableDatabase;
 
 class Hooks implements
 	GetPreferencesHook,
@@ -37,17 +38,17 @@ class Hooks implements
 {
 
 	private UserOptionsLookup $userOptionsLookup;
-	private IDatabase $dbr;
+	private IReadableDatabase $dbr;
 	private Config $config;
 
 	/**
 	 * @param UserOptionsLookup $uol
-	 * @param ILoadBalancer $lb
+	 * @param IConnectionProvider $dbProvider
 	 * @param Config $config
 	 */
-	public function __construct( UserOptionsLookup $uol, ILoadBalancer $lb, Config $config ) {
+	public function __construct( UserOptionsLookup $uol, IConnectionProvider $dbProvider, Config $config ) {
 		$this->userOptionsLookup = $uol;
-		$this->dbr = $lb->getConnection( ILoadBalancer::DB_REPLICA );
+		$this->dbr = $dbProvider->getReplicaDatabase();
 		$this->config = $config;
 	}
 
@@ -143,7 +144,10 @@ class Hooks implements
 			// FIXME FIXME FIXME - this is hacky
 			// Core makes a partial group by. If $wgSQLMode is set to strict this fails
 			// which it is in unit tests. The following does not work with complex LBs.
-			if ( strpos( $wgSQLMode, 'ONLY_FULL_GROUP_BY' ) && $this->dbr->getType() === 'mysql' ) {
+			if ( $this->dbr instanceof IDatabase &&
+				$this->dbr->getType() === 'mysql' &&
+				str_contains( $wgSQLMode, 'ONLY_FULL_GROUP_BY' )
+			) {
 				$this->dbr->query( 'SET sql_mode=""', __METHOD__ );
 			}
 		} else {

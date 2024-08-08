@@ -7,7 +7,7 @@
 		"[http://mwstake.org Mark A. Hershberger]"
 	],
 	"requires": {
-		"MediaWiki": ">= 1.39"
+		"MediaWiki": ">= 1.42"
 	},
 	"url": "https://www.mediawiki.org/wiki/Extension:SubpageWatchlist",
 	"descriptionmsg": "subpagewatchlist-desc",
@@ -42,14 +42,14 @@
 			"class": "MediaWiki\\Extensions\\SubpageWatchlist\\Hooks",
 			"services": [
 				"UserOptionsManager",
-				"DBLoadBalancer",
+				"ConnectionProvider",
 				"MainConfig"
 			]
 		},
 		"enotif": {
 			"class": "MediaWiki\\Extensions\\SubpageWatchlist\\Enotif",
 			"services": [
-				"DBLoadBalancer",
+				"ConnectionProvider",
 				"MainConfig",
 				"UserOptionsManager",
 				"ContentLanguage",
