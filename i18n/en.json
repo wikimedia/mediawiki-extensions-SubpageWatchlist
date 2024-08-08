@@ -8,5 +8,5 @@
 	"subpagewatchlist-rcfilter-showsubpages-label": "Subpages",
 	"subpagewatchlist-rcfilter-showsubpages-description": "Edits to subpages of watched pages",
 	"subpagewatchlist-enotif-body": "Dear $WATCHINGUSERNAME,\n\n$PAGEINTRO $NEWPAGE\n\nYou are receiving this email because you are watching its base-page, $PAGETITLEWATCHED.\n\nEditor's summary: $PAGESUMMARY $PAGEMINOREDIT\n\nContact the editor:\nmail: $PAGEEDITOR_EMAIL\nwiki: $PAGEEDITOR_WIKI\n\nThere will be no other notifications in case of further activity unless you visit this page while logged in. You could also reset the notification flags for all your watched pages on your watchlist.\n\nYour friendly {{SITENAME}} notification system\n\n--\nTo change your email notification settings, visit\n{{canonicalurl:{{#special:Preferences}}}}\n\nTo change your watchlist settings, visit\n{{canonicalurl:{{#special:EditWatchlist}}}}\n\nTo delete the page from your watchlist, visit\n$UNWATCHURL\n\nFeedback and further assistance:\n$HELPPAGE",
-	"tog-enotifwatchlistsubpages": "Email me when a sub-page of a page on my watchlist is changed"
+	"tog-enotifwatchlistsubpages": "Email me when a subpage of a page on my watchlist is changed"
 }
