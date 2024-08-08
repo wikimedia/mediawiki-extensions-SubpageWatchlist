@@ -47,7 +47,7 @@ class Hooks implements
 	 */
 	public function __construct( UserOptionsLookup $uol, ILoadBalancer $lb, Config $config ) {
 		$this->userOptionsLookup = $uol;
-		$this->dbr = $lb->getconnectionRef( ILoadBalancer::DB_REPLICA );
+		$this->dbr = $lb->getConnection( ILoadBalancer::DB_REPLICA );
 		$this->config = $config;
 	}
 

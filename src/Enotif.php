@@ -55,7 +55,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 		WatchlistManager $watchlistManager,
 		WatchedItemStore $watchedItemStore
 	) {
-		$this->dbr = $lb->getconnectionRef( ILoadBalancer::DB_REPLICA );
+		$this->dbr = $lb->getConnection( ILoadBalancer::DB_REPLICA );
 		$this->config = $config;
 		$this->userOptionsLookup = $userOptionsLookup;
 		$this->contLang = $contLang;
