@@ -144,7 +144,7 @@ class Hooks implements
 			// Core makes a partial group by. If $wgSQLMode is set to strict this fails
 			// which it is in unit tests. The following does not work with complex LBs.
 			if ( strpos( $wgSQLMode, 'ONLY_FULL_GROUP_BY' ) && $this->dbr->getType() === 'mysql' ) {
-				$this->dbr->query( 'SET sql_mode=""' );
+				$this->dbr->query( 'SET sql_mode=""', __METHOD__ );
 			}
 		} else {
 			throw new LogicException( "Could not understand watchlist query" );
