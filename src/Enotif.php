@@ -10,6 +10,7 @@ use MediaWiki\Hook\AbortEmailNotificationHook;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
 use MediaWiki\Page\Hook\PageViewUpdatesHook;
+use MediaWiki\Title\Title;
 use MediaWiki\User\UserOptionsLookup;
 use MediaWiki\Watchlist\WatchlistManager;
 use MessageCache;
@@ -17,7 +18,6 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Skin;
 use SpecialPage;
-use Title;
 use TitleValue;
 use User;
 use UserMailer;
@@ -145,7 +145,6 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 			$to = MailAddress::newFromUser( $user );
 			// Core adds a list-help header, not sure if we should do the same.
 			[ $from, $replyTo ] = $this->getFromAndReplyTo( $editor );
-			// @phan-suppress-next-line SecurityCheck-XSS
 			$status = UserMailer::send(
 				$to,
 				$from,
