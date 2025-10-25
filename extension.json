@@ -54,6 +54,7 @@
 				"UserOptionsManager",
 				"ContentLanguage",
 				"MessageCache",
+				"UrlUtils",
 				"WatchlistManager",
 				"WatchedItemStore"
 			]

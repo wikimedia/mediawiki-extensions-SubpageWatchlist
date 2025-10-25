@@ -13,6 +13,7 @@ use MediaWiki\Page\Hook\PageViewUpdatesHook;
 use MediaWiki\Page\PageReferenceValue;
 use MediaWiki\Title\Title;
 use MediaWiki\User\UserOptionsLookup;
+use MediaWiki\Utils\UrlUtils;
 use MediaWiki\Watchlist\WatchlistManager;
 use MessageCache;
 use Psr\Log\LoggerAwareInterface;
@@ -33,6 +34,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 	private UserOptionsLookup $userOptionsLookup;
 	private Language $contLang;
 	private MessageCache $messageCache;
+	private UrlUtils $urlUtils;
 	private WatchlistManager $watchlistManager;
 	private WatchedItemStore $watchedItemStore;
 
@@ -42,6 +44,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 	 * @param UserOptionsLookup $userOptionsLookup
 	 * @param Language $contLang
 	 * @param MessageCache $messageCache
+	 * @param UrlUtils $urlUtils
 	 * @param WatchlistManager $watchlistManager
 	 * @param WatchedItemStore $watchedItemStore
 	 */
@@ -51,6 +54,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 		UserOptionsLookup $userOptionsLookup,
 		Language $contLang,
 		MessageCache $messageCache,
+		UrlUtils $urlUtils,
 		WatchlistManager $watchlistManager,
 		WatchedItemStore $watchedItemStore
 	) {
@@ -60,6 +64,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 		$this->contLang = $contLang;
 		// This is what core does, although it seems odd.
 		$this->messageCache = $messageCache;
+		$this->urlUtils = $urlUtils;
 		$this->watchlistManager = $watchlistManager;
 		$this->watchedItemStore = $watchedItemStore;
 		// Is there a way to get extension.json to inject this?
@@ -290,7 +295,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 		}
 
 		$keys['$PAGEEDITOR_WIKI'] = $originalEditor->getUserPage()->getCanonicalURL();
-		$keys['$HELPPAGE'] = wfExpandUrl(
+		$keys['$HELPPAGE'] = $this->urlUtils->expand(
 			Skin::makeInternalOrExternalUrl( wfMessage( 'helppage' )->inContentLanguage()->text() )
 		);
 
