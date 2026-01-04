@@ -10,6 +10,7 @@ use MediaWiki\Hook\AbortEmailNotificationHook;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
 use MediaWiki\Page\Hook\PageViewUpdatesHook;
+use MediaWiki\Page\PageReferenceValue;
 use MediaWiki\Title\Title;
 use MediaWiki\User\UserOptionsLookup;
 use MediaWiki\Watchlist\WatchlistManager;
@@ -18,7 +19,6 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Skin;
 use SpecialPage;
-use TitleValue;
 use User;
 use UserMailer;
 use WatchedItemStore;
@@ -176,7 +176,7 @@ class Enotif implements AbortEmailNotificationHook, LoggerAwareInterface, PageVi
 		$ts = wfTimestampNow();
 		foreach ( $timestampsToReset as $page => $users ) {
 			foreach ( $users as $user ) {
-				$target = new TitleValue( $ns, $page );
+				$target = PageReferenceValue::localReference( $ns, $page );
 				$this->watchedItemStore->setNotificationTimestampsForUser(
 					$user,
 					$ts,
